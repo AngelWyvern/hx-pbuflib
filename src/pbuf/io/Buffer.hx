@@ -7,7 +7,7 @@ import haxe.io.FPHelper;
 import pbuf.Typedefs;
 
 /**
- * A cross compatible byte buffer class with abstraction and limited chaining support.
+ * A cross-compatible byte buffer class with extensive features and limited chaining support.
  */
 class Buffer
 {

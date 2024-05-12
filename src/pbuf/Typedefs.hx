@@ -1,0 +1,36 @@
+package pbuf;
+
+import haxe.Int64;
+
+typedef UInt8 = UInt;
+typedef UInt16 = UInt;
+typedef UInt16LE = UInt;
+typedef UInt16BE = UInt;
+typedef UInt32 = UInt;
+typedef UInt32LE = UInt;
+typedef UInt32BE = UInt;
+typedef UInt64 = Int64;
+typedef UInt64LE = Int64;
+typedef UInt64BE = Int64;
+typedef Int8 = Int;
+typedef Int16 = Int;
+typedef Int16LE = Int;
+typedef Int16BE = Int;
+typedef Int32 = Int;
+typedef Int32LE = Int;
+typedef Int32BE = Int;
+typedef Int64LE = Int64;
+typedef Int64BE = Int64;
+typedef FloatLE = Float;
+typedef FloatBE = Float;
+typedef Double = Float;
+typedef DoubleLE = Float;
+typedef DoubleBE = Float;
+typedef L8String = String;
+typedef L16String = String;
+typedef L16LEString = String;
+typedef L16BEString = String;
+typedef L32String = String;
+typedef L32LEString = String;
+typedef L32BEString = String;
+typedef ZString = String;

@@ -1,0 +1,14 @@
+# Include library files
+-L pbuflib
+
+# Set path
+-p src
+
+# Define entry point
+-m Test
+
+# Analyzer optimizations
+-D analyzer-optimize
+
+# Compile to hasklink target
+--hl out/pbuftest.hl

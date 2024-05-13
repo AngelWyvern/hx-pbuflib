@@ -25,8 +25,9 @@ class StructBuilder
 	 */
 	public static macro function gen(inferBE:Bool = false):Array<Field>
 	{
+		final absImpl:ClassType = Context.getLocalClass().get();
 		var absInfo:AbstractType;
-		switch (Context.getLocalClass().get().kind)
+		switch (absImpl.kind)
 		{
 			case KAbstractImpl(ref):
 				absInfo = ref.get();
@@ -42,7 +43,8 @@ class StructBuilder
 			case _:
 				Context.fatalError('Structs can only be generated on abstract types with an underlying Buffer type.', Context.currentPos());
 		}
-		var absPath:ComplexType = TPath({ name:absInfo.name, pack:absInfo.pack });
+		absImpl.meta.add(':dce', [], Context.currentPos()); // Remove abstract definitions if inlining is enabled
+		final absPath:ComplexType = TPath({ name:absInfo.name, pack:absInfo.pack });
 
 		var userFields:Array<Field> = Context.getBuildFields();
 		var genFields:Array<Field> = [];
@@ -140,7 +142,7 @@ class StructBuilder
 		genFields.push(
 		{ // Constructor field
 			name:'new',
-			access:[ APublic ],
+			access:[ APublic, AInline ],
 			kind:FFun({ args:[], expr:macro this = pbuf.io.Buffer.alloc($v{allocSize}) }),
 			pos:Context.currentPos()
 		});

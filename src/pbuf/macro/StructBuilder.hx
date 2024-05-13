@@ -42,6 +42,7 @@ class StructBuilder
 			case _:
 				Context.fatalError('Structs can only be generated on abstract types with an underlying Buffer type.', Context.currentPos());
 		}
+		var absPath:ComplexType = TPath({ name:absInfo.name, pack:absInfo.pack });
 
 		var userFields:Array<Field> = Context.getBuildFields();
 		var genFields:Array<Field> = [];
@@ -144,11 +145,19 @@ class StructBuilder
 			pos:Context.currentPos()
 		});
 		genFields.push(
+		{ // From Bytes field
+			name:'fromBytes',
+			access:[ APublic, AStatic, AInline ],
+			meta:[{ name:':from', pos:Context.currentPos() }],
+			kind:FFun({ args:[{ name:'bytes', type:macro:haxe.io.Bytes }], expr:macro return cast pbuf.io.Buffer.fromBytes($i{'bytes'}, false), ret:absPath }),
+			pos:Context.currentPos()
+		});
+		genFields.push(
 		{ // From Buffer field
 			name:'fromBuffer',
 			access:[ APublic, AStatic, AInline ],
 			meta:[{ name:':from', pos:Context.currentPos() }],
-			kind:FFun({ args:[{ name:'buffer', type:macro:pbuf.io.Buffer }], expr:macro return cast $i{'buffer'}, ret:TPath({ name:absInfo.name, pack:absInfo.pack }) }),
+			kind:FFun({ args:[{ name:'buffer', type:macro:pbuf.io.Buffer }], expr:macro return cast $i{'buffer'}, ret:absPath }),
 			pos:Context.currentPos()
 		});
 		genFields.push(
@@ -157,6 +166,14 @@ class StructBuilder
 			access:[ APublic, AInline ],
 			meta:[{ name:':to', pos:Context.currentPos() }],
 			kind:FFun({ args:[], expr:macro return this, ret:macro:pbuf.io.Buffer }),
+			pos:Context.currentPos()
+		});
+		genFields.push(
+		{ // To Bytes field
+			name:'toBytes',
+			access:[ APublic, AInline ],
+			meta:[{ name:':to', pos:Context.currentPos() }],
+			kind:FFun({ args:[], expr:macro return this.toBytes(false), ret:macro:haxe.io.Bytes }),
 			pos:Context.currentPos()
 		});
 		return genFields;

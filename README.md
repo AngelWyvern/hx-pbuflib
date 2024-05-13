@@ -44,10 +44,11 @@ The `Buffer` class has limited chaining support. Each `write` function within a 
 ```hx
 function example(buffer:Buffer)
 {
-	buffer.writeUInt8(128)
-	      .writeUInt16LE(16384)
-	      .writeFloatLE(1234.5678)
-	      .writeString("Test");
+	buffer
+		.writeUInt8(128)
+		.writeUInt16LE(16384)
+		.writeFloatLE(1234.5678)
+		.writeString("Test");
 }
 ```
 
@@ -81,7 +82,13 @@ struct.myInt = 32168;
 struct.myString = "Hello struct";
 ```
 
-This would be equivalent to writing the following:
+Or we could make it a bit more compact by putting our values directly into the constructor:
+
+```hx
+var struct:MyStruct = new MyStruct(32168, "Hello struct");
+```
+
+Both code blocks would be equivalent to writing the following:
 
 ```hx
 var buffer:Buffer = Buffer.alloc(18); // 2 bytes (UInt16) + 16 (specified by @size meta) = 18

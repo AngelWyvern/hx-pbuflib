@@ -1,5 +1,7 @@
 #!/bin/bash
-BUILD_ARGS="-L pbuflib -p src -m Test -D analyzer-optimize"
+MAIN=Test
+BUILD_ARGS="-L pbuflib -p src -m $MAIN -D analyzer-optimize"
+OUT=pbuftest
 
 if [ -z "$1" ]; then
 	echo -e "Please select a target:\n- js\n- hl\n- cpp\n- cs\n- java\n- python"
@@ -10,32 +12,32 @@ fi
 
 case "$intarget" in
 	"js")
-		haxe $BUILD_ARGS --js out/pbuftest.js
-		node "out/pbuftest.js"
+		haxe $BUILD_ARGS --js out/$OUT.js
+		node "out/$OUT.js"
 		;;
 	"hl")
-		haxe $BUILD_ARGS --hl out/pbuftest.hl
-		hl "out/pbuftest.hl"
+		haxe $BUILD_ARGS --hl out/$OUT.hl
+		hl "out/$OUT.hl"
 		;;
 	"cpp")
 		haxe $BUILD_ARGS --cpp out/cpp
-		out/cpp/Test.exe
+		out/cpp/$MAIN.exe
 		;;
 	"cs")
 		haxe $BUILD_ARGS --cs out/cs
-		out/cs/bin/Test.exe
+		out/cs/bin/$MAIN.exe
 		;;
 	"java")
 		haxe $BUILD_ARGS --java out/java
-		java -jar "out/java/Test.jar"
+		java -jar "out/java/$MAIN.jar"
 		;;
 	"python")
-		haxe $BUILD_ARGS --python out/pbuftest.py
-		python "out/pbuftest.py"
+		haxe $BUILD_ARGS --python out/$OUT.py
+		python "out/$OUT.py"
 		;;
 	"lua")
-		haxe $BUILD_ARGS --lua out/pbuftest.lua
-		lua "out/pbuftest.lua"
+		haxe $BUILD_ARGS --lua out/$OUT.lua
+		lua "out/$OUT.lua"
 		;;
 	*)
 		echo "Invalid target '$intarget'"

@@ -11,7 +11,9 @@ class StructTest
 	{
 		test1();
 		test2();
+		#if !lua // annoying
 		test3();
+		#end
 		test4();
 	}
 
@@ -56,6 +58,7 @@ class StructTest
 		trace('preview: ' + arrayFromBuf(y) + '\n');
 	}
 
+	#if !lua // annoying
 	static function test3()
 	{
 		trace('  >> Struct Test 3 <<  ');
@@ -109,6 +112,7 @@ class StructTest
 		trace('reading k: ' + z.k);
 		trace('preview: ' + arrayFromBuf(z) + '\n');
 	}
+	#end
 
 	static function test4()
 	{
@@ -136,7 +140,7 @@ class StructTest
 		return arr;
 	}
 
-	static inline function arrayFromBytes(bytes:Bytes):Array<UInt>
+	static inline function arrayFromBytes(bytes:Bytes):Array<Int>
 	{
 		var arr = [];
 		for (i in 0...bytes.length)

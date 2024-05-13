@@ -20,12 +20,8 @@ class StructTest
 	static function test1()
 	{
 		trace('  >> Struct Test 1 <<  ');
-		var x:MyStruct = new MyStruct();
-
-		trace('writing myInt: ' + 32168);
-		x.myInt = 32168;
-		trace('writing myString: ' + "Good stuff");
-		x.myString = "Good stuff";
+		var x:MyStruct = new MyStruct(32168, "Good stuff");
+		trace('struct initialized with UInt16BE:32168 and ZString:Good stuff');
 
 		trace('reading myInt: ' + x.myInt);
 		trace('reading myString: ' + x.myString);

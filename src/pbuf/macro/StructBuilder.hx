@@ -51,6 +51,9 @@ class StructBuilder
 
 		var allocSize:UInt = 0;
 
+		var initArgs:Array<FunctionArg> = [];
+		var initExprs:Array<Expr> = [];
+
 		for (uf in userFields)
 		{
 			switch (uf.kind)
@@ -103,9 +106,10 @@ class StructBuilder
 								setter.expr = macro { this.$writeFunc($i{'newValue'}, null, $v{allocSize}); return $i{'newValue'}; };
 							}
 
+							final fieldName:String = uf.name;
 							genFields.push(
 							{ // Property field
-								name:uf.name,
+								name:fieldName,
 								doc:uf.doc,
 								access:[ APublic ],
 								meta:uf.meta,
@@ -114,7 +118,7 @@ class StructBuilder
 							});
 							genFields.push(
 							{ // Getter field
-								name:'get_${uf.name}',
+								name:'get_$fieldName',
 								access:[ APrivate, AInline ],
 								meta:[{ name:':noCompletion', pos:Context.currentPos() }],
 								kind: FFun(getter),
@@ -122,7 +126,7 @@ class StructBuilder
 							});
 							genFields.push(
 							{ // Setter field
-								name:'set_${uf.name}',
+								name:'set_$fieldName',
 								access:[ APrivate, AInline ],
 								meta:[{ name:':noCompletion', pos:Context.currentPos() }],
 								kind: FFun(setter),
@@ -130,6 +134,9 @@ class StructBuilder
 							});
 
 							allocSize += size;
+
+							initArgs.push({ name:fieldName, type:inferred, value:macro null, opt:true });
+							initExprs.push(macro if ($i{fieldName} != null) $i{'set_$fieldName'}($i{fieldName}));
 						case _:
 							Context.reportError('Incompatible variable declaration.', uf.pos);
 							continue;
@@ -139,11 +146,13 @@ class StructBuilder
 			}
 		}
 
+		initExprs.unshift(macro this = pbuf.io.Buffer.alloc($v{allocSize}));
+
 		genFields.push(
 		{ // Constructor field
 			name:'new',
 			access:[ APublic, AInline ],
-			kind:FFun({ args:[], expr:macro this = pbuf.io.Buffer.alloc($v{allocSize}) }),
+			kind:FFun({ args:initArgs, expr:macro $b{initExprs} }),
 			pos:Context.currentPos()
 		});
 		genFields.push(

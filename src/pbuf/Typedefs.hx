@@ -2,10 +2,10 @@ package pbuf;
 
 import haxe.Int64;
 
-typedef UInt8 = UInt;
-typedef UInt16 = UInt;
-typedef UInt16LE = UInt;
-typedef UInt16BE = UInt;
+typedef UInt8 = Int;
+typedef UInt16 = Int;
+typedef UInt16LE = Int;
+typedef UInt16BE = Int;
 typedef UInt32 = UInt;
 typedef UInt32LE = UInt;
 typedef UInt32BE = UInt;

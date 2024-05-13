@@ -285,7 +285,7 @@ class Test
 		cleanup();
 	}
 
-	static inline function arrayFromBuf():Array<UInt>
+	static inline function arrayFromBuf():Array<Int>
 	{
 		var arr = [];
 		for (i in 0...buffer.byteLength)

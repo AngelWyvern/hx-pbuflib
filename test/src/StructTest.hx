@@ -128,7 +128,7 @@ class StructTest
 		trace('convert to Bytes: ' + a);
 	}
 
-	static inline function arrayFromBuf(buffer:Buffer):Array<UInt>
+	static inline function arrayFromBuf(buffer:Buffer):Array<Int>
 	{
 		var arr = [];
 		for (i in 0...buffer.byteLength)

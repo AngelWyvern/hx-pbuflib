@@ -132,7 +132,7 @@ class StructTest
 	{
 		var arr = [];
 		for (i in 0...buffer.byteLength)
-			arr.push(buffer.readUInt8(i));
+			arr.push(buffer[i]);
 		return arr;
 	}
 

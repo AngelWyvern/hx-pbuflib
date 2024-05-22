@@ -1,6 +1,7 @@
 package;
 
 import haxe.Int64;
+import haxe.io.Bytes;
 import pbuf.io.Buffer;
 
 class Test
@@ -23,6 +24,7 @@ class Test
 		testFloat();
 		testDouble();
 		testString();
+		testCasts();
 	}
 
 	static function testBool()
@@ -50,12 +52,12 @@ class Test
 		u4 = Math.round(Math.random() * 0xFF);
 
 		trace('Writing random UInt8s: $u1, $u2, $u3, $u4');
-		buffer.writeUInt8(u1)
-		      .writeUInt8(u2)
-		      .writeUInt8(u3)
-		      .writeUInt8(u4);
+		buffer[0] = u1;
+		buffer[1] = u2;
+		buffer[2] = u3;
+		buffer[3] = u4;
 
-		trace('Reading random UInt8s: ${buffer.readUInt8(0)}, ${buffer.readUInt8()}, ${buffer.readUInt8()}, ${buffer.readUInt8()}');
+		trace('Reading random UInt8s: ${buffer[0]}, ${buffer[1]}, ${buffer[2]}, ${buffer[3]}');
 
 		trace('Raw buffer data: ${arrayFromBuf()}\n');
 		cleanup();
@@ -285,11 +287,47 @@ class Test
 		cleanup();
 	}
 
+	static function testCasts()
+	{
+		trace('  >> Casts Test <<  ');
+
+		trace('Filling buffer with random UInt8s');
+		for (i in 0...buffer.byteLength)
+			buffer[i] = Math.round(Math.random() * 0xFF);
+
+		trace('Casting buffer to bytes');
+		var bytes:Bytes = buffer;
+
+		trace('Raw bytes data: ${arrayFromBytes(bytes)}');
+		trace('Raw buffer data: ${arrayFromBuf()}');
+
+		trace('Filling new bytes with random UInt8s');
+		bytes = Bytes.alloc(buffer.byteLength);
+		for (i in 0...bytes.length)
+			bytes.set(i, Math.round(Math.random() * 0xFF));
+
+		trace('Casting bytes to buffer');
+		buffer = bytes;
+
+		trace('Raw bytes data: ${arrayFromBytes(bytes)}');
+		trace('Raw buffer data: ${arrayFromBuf()}\n');
+
+		cleanup();
+	}
+
 	static inline function arrayFromBuf():Array<Int>
 	{
 		var arr = [];
 		for (i in 0...buffer.byteLength)
-			arr.push(buffer.readUInt8(i));
+			arr.push(buffer[i]);
+		return arr;
+	}
+
+	static inline function arrayFromBytes(bytes:Bytes):Array<Int>
+	{
+		var arr = [];
+		for (i in 0...bytes.length)
+			arr.push(bytes.get(i));
 		return arr;
 	}
 

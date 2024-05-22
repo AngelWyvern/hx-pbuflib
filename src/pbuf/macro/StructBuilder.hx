@@ -36,9 +36,9 @@ class StructBuilder
 		}
 		switch (absInfo.type)
 		{
-			case TInst(t, _):
-				var classType = t.get();
-				if (classType.name != 'Buffer' || classType.pack.length != 2 || classType.pack[0] != 'pbuf' || classType.pack[1] != 'io')
+			case TAbstract(t, _):
+				var underType:AbstractType = t.get();
+				if (underType.name != 'Buffer' || underType.pack.length != 2 || underType.pack[0] != 'pbuf' || underType.pack[1] != 'io')
 					Context.fatalError('Structs can only be generated on abstract types with an underlying Buffer type.', Context.currentPos());
 			case _:
 				Context.fatalError('Structs can only be generated on abstract types with an underlying Buffer type.', Context.currentPos());

@@ -1,6 +1,6 @@
 {
 	"name":"pbuflib",
-	"url":"https://github.com/AngelDTF/hx-pbuflib",
+	"url":"https://github.com/AngelWyvern/hx-pbuflib",
 	"license":"GPL",
 	"tags":[ "cross", "utility", "macro", "buffer", "structure" ],
 	"description":"Adds extensive buffer features with structuring and prototyping support via abstractions for simple code writing.",

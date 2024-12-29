@@ -1,4 +1,4 @@
-# <p align="center">hx-pbuflib<p><p align="center"><a href="https://lib.haxe.org/p/pbuflib"><img src="https://img.shields.io/badge/available_on-haxelib-EA8220?style=for-the-badge&logo=haxe"/></a> <img src="https://img.shields.io/badge/Version-0.0.3-0080FF?style=for-the-badge"> <img src="https://img.shields.io/badge/Early_development-FFD000?style=for-the-badge"></p>
+# <p align="center">hx-pbuflib<p><p align="center"><a href="https://lib.haxe.org/p/pbuflib"><img src="https://img.shields.io/badge/available_on-haxelib-EA8220?style=for-the-badge&logo=haxe"/></a> <img src="https://img.shields.io/badge/Version-1.0.0-0080FF?style=for-the-badge"></p>
 
 This is the repository for hx-pbuflib (short for Prototype Buffer Library), a cross-platform Haxe library that expands the capabilities of byte buffers.
 

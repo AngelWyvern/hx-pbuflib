@@ -4,7 +4,7 @@
 	"license":"GPL",
 	"tags":[ "cross", "utility", "macro", "buffer", "structure" ],
 	"description":"Adds extensive buffer features with structuring and prototyping support via abstractions for simple code writing.",
-	"version":"0.0.3",
+	"version":"1.0.0",
 	"classPath":"src/",
 	"releasenote":"Early development, code is subject to change and may include bugs.",
 	"contributors":[ "AngelBot" ]

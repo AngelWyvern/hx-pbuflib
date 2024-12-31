@@ -8,7 +8,7 @@ class Test
 {
 	static var buffer:Buffer;
 
-	static function main()
+	static function main():Void
 	{
 		buffer = Buffer.alloc(16);
 
@@ -27,7 +27,7 @@ class Test
 		testCasts();
 	}
 
-	static function testBool()
+	static function testBool():Void
 	{
 		trace('  >> Bool Test <<  ');
 
@@ -41,7 +41,7 @@ class Test
 		cleanup();
 	}
 
-	static function testUInt8()
+	static function testUInt8():Void
 	{
 		trace('  >> UInt8 Test <<  ');
 
@@ -63,7 +63,7 @@ class Test
 		cleanup();
 	}
 
-	static function testUInt16()
+	static function testUInt16():Void
 	{
 		trace('  >> UInt16 Test <<  ');
 
@@ -85,7 +85,7 @@ class Test
 		cleanup();
 	}
 
-	static function testUInt32()
+	static function testUInt32():Void
 	{
 		trace('  >> UInt32 Test <<  ');
 
@@ -107,7 +107,7 @@ class Test
 		cleanup();
 	}
 
-	static function testUInt64()
+	static function testUInt64():Void
 	{
 		trace('  >> UInt64 Test <<  ');
 
@@ -125,7 +125,7 @@ class Test
 		cleanup();
 	}
 
-	static function testInt8()
+	static function testInt8():Void
 	{
 		trace('  >> Int8 Test <<  ');
 
@@ -147,7 +147,7 @@ class Test
 		cleanup();
 	}
 
-	static function testInt16()
+	static function testInt16():Void
 	{
 		trace('  >> Int16 Test <<  ');
 
@@ -169,7 +169,7 @@ class Test
 		cleanup();
 	}
 
-	static function testInt32()
+	static function testInt32():Void
 	{
 		trace('  >> Int32 Test <<  ');
 
@@ -191,7 +191,7 @@ class Test
 		cleanup();
 	}
 
-	static function testInt64()
+	static function testInt64():Void
 	{
 		trace('  >> Int64 Test <<  ');
 
@@ -209,7 +209,7 @@ class Test
 		cleanup();
 	}
 
-	static function testFloat()
+	static function testFloat():Void
 	{
 		trace('  >> Float Test <<  ');
 
@@ -231,7 +231,7 @@ class Test
 		cleanup();
 	}
 
-	static function testDouble()
+	static function testDouble():Void
 	{
 		trace('  >> Double Test <<  ');
 
@@ -249,7 +249,7 @@ class Test
 		cleanup();
 	}
 
-	static function testString()
+	static function testString():Void
 	{
 		trace('  >> String Test <<  ');
 
@@ -287,7 +287,7 @@ class Test
 		cleanup();
 	}
 
-	static function testCasts()
+	static function testCasts():Void
 	{
 		trace('  >> Casts Test <<  ');
 

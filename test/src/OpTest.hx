@@ -1,20 +1,18 @@
 package;
 
-import haxe.Int64;
-import haxe.io.Bytes;
 import pbuf.io.Buffer;
 
 class OpTest
 {
-	static function main()
+	static function main():Void
 	{
 		testCopy();
 		testClone();
 		testCompare();
 		testFill();
 	}
-	
-	static function testCopy()
+
+	static function testCopy():Void
 	{
 		trace('  >> Copy Test <<  ');
 
@@ -33,7 +31,7 @@ class OpTest
 		trace('buffer2 raw: ${arrayFromBuf(buffer2)}\n');
 	}
 
-	static function testClone()
+	static function testClone():Void
 	{
 		trace('  >> Clone Test <<  ');
 
@@ -51,7 +49,7 @@ class OpTest
 		trace('clone raw: ${arrayFromBuf(clone)}\n');
 	}
 
-	static function testCompare()
+	static function testCompare():Void
 	{
 		trace('  >> Compare Test <<  ');
 
@@ -63,7 +61,7 @@ class OpTest
 		trace('compare: ${buffer1.compare(buffer2)}\n');
 	}
 
-	static function testFill()
+	static function testFill():Void
 	{
 		trace('  >> Fill Test <<  ');
 
@@ -73,7 +71,7 @@ class OpTest
 		var num:Int = Math.round(Math.random() * 0xFF);
 		buffer.fill(num, Std.int(buffer.byteLength / 2), 0);
 		trace('filled half of the buffer with value: $num');
-		
+
 		trace('buffer raw: ${arrayFromBuf(buffer)}\n');
 	}
 

@@ -15,7 +15,7 @@ import pbuf.io.Buffer;
 
 class Main
 {
-	static function main()
+	static function main():Void
 	{
 		var buffer:Buffer = Buffer.alloc(16); // allocates 16 bytes of space for this buffer
 		buffer.writeInt16LE(24576); // writes a 16-bit integer in little-endian
@@ -42,7 +42,7 @@ If a position is not given, then an internal tracker (`buffer.curPos`) will be u
 The `Buffer` class has limited chaining support. Each `write` function within a buffer can be chained, allowing for swifter coding.
 
 ```hx
-function example(buffer:Buffer)
+function example(buffer:Buffer):Void
 {
 	buffer
 		.writeUInt8(128)
@@ -56,7 +56,7 @@ function example(buffer:Buffer)
 
 If you're working with a lot of varying types of data, structuring can massively speed up your workflow while reducing the rate of encountering bugs along the way.
 
-A struct *(Structure)* is simply an abstract buffer with properties that will automatically read and write the corresponding data when accessed. These properties are automatically populated by a macro that reads a set of variables defined by the user. The macro only supports reading variables that are of types listed in the __Data Types__ section below.
+A struct *(Structure)* is simply an abstract `Buffer` with properties that will automatically read and write the corresponding data when accessed. These properties are automatically populated by a macro that reads a set of variables defined by the user. The macro only supports reading variables that are of types listed in the __Data Types__ section below.
 
 An example of a struct definition:
 
@@ -64,7 +64,7 @@ An example of a struct definition:
 import pbuf.Typedefs;
 import pbuf.io.Buffer;
 
-@:build(pbuf.macro.StructBuilder.gen())
+@:build(pbuf.Struct.make())
 abstract MyStruct(Buffer)
 {
 	var myInt:UInt16;
@@ -103,19 +103,19 @@ buffer.writeZString("Hello struct", null, 2); // last var held 2 bytes, write at
 |    Type     |                            Description                             |  Endianness   |
 |-------------|--------------------------------------------------------------------|---------------|
 | Bool        | Binary `true`/`false` value                                        | N/A           |
-| UInt8       | Unsigned 8-bit integer (0 - 255)                                   | N/A           |
-| UInt16LE    | Unsigned 16-bit integer (0 - 65535)                                | Little-Endian |
+| UInt8       | Unsigned 8-bit integer (0 – 255)                                   | N/A           |
+| UInt16LE    | Unsigned 16-bit integer (0 – 65535)                                | Little-Endian |
 | UInt16BE    | *(See above)*                                                      | Big-Endian    |
-| UInt32LE    | Unsigned 32-bit integer (0 - 4294967295)                           | Little-Endian |
+| UInt32LE    | Unsigned 32-bit integer (0 – 4294967295)                           | Little-Endian |
 | UInt32BE    | *(See above)*                                                      | Big-Endian    |
-| UInt64LE    | Unsigned 64-bit integer (0 - 18446744073709551615)                 | Little-Endian |
+| UInt64LE    | Unsigned 64-bit integer (0 – 18446744073709551615)                 | Little-Endian |
 | UInt64BE    | *(See above)*                                                      | Big-Endian    |
-| Int8        | Signed 8-bit integer (-128 - 127)                                  | N/A           |
-| Int16LE     | Signed 16-bit integer (-32768 - 32767)                             | Little-Endian |
+| Int8        | Signed 8-bit integer (-128 – 127)                                  | N/A           |
+| Int16LE     | Signed 16-bit integer (-32768 – 32767)                             | Little-Endian |
 | Int16BE     | *(See above)*                                                      | Big-Endian    |
-| Int32LE     | Signed 32-bit integer (-2147483648 - 2147483647)                   | Little-Endian |
+| Int32LE     | Signed 32-bit integer (-2147483648 – 2147483647)                   | Little-Endian |
 | Int32BE     | *(See above)*                                                      | Big-Endian    |
-| Int64LE     | Signed 64-bit integer (-9223372036854775808 - 9223372036854775807) | Little-Endian |
+| Int64LE     | Signed 64-bit integer (-9223372036854775808 – 9223372036854775807) | Little-Endian |
 | Int64BE     | *(See above)*                                                      | Big-Endian    |
 | FloatLE     | Single-precision floating point number                             | Little-Endian |
 | FloatBE     | *(See above)*                                                      | Big-Endian    |
@@ -129,16 +129,18 @@ buffer.writeZString("Hello struct", null, 2); // last var held 2 bytes, write at
 | L32BEString | *(See above)*                                                      | Big-Endian    |
 | ZString     | A string value with a null terminator appended                     | N/A           |
 
-*(Note: When writing structs, the endianness (`LE`/`BE`) can optionally be omitted. When omitted, Little-Endian is assumed unless `inferBE` is set to true in the `@:build` function arguments.)*
+*(**Note**: When writing structs, the endianness (`LE`/`BE`) can optionally be omitted. When omitted, Little-Endian is assumed unless `inferBE` is set to true in the `@:build` function arguments.)*
+
+*(**Warning**: Due to limitations within Haxe's typing system, the data types above may have a shorter limit than what is written. You can check [`pbuf.Typedefs`](src/pbuf/Typedefs.hx) for more info.)*
 
 ## <p align="center">Compatibility</p>
 
 ### <p align="center">Tested Platforms</p>
 
-**JavaScript**, **HashLink**, **C++**, **C#**, **Python**, and **Lua** were tested and functional. Any untested platforms may have varying results.
+**JavaScript**, **HashLink**, **C++**, **C#**, **Java**, **Python**, and **Lua** were tested and functional. Any untested platforms may have varying results.
 
 ### <p align="center">Other Libraries</p>
 
 This library was written to be compatible with any other library that utilizes Haxe's built-in `Bytes` class.
 
-Buffers can be passed to functions as `Bytes` via the `buffer.toBytes()` function. Buffers can also be created from existing `Bytes` objects via the `Buffer.fromBytes(bytes)` function.
+Buffers can be passed to functions as `Bytes` via implicit casting or the `buffer.toBytes()` function. Buffers can also be created from existing `Bytes` objects via implicit casting or the `Buffer.fromBytes(bytes)` function.

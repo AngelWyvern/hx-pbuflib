@@ -4,7 +4,7 @@ BUILD_ARGS="-L pbuflib -p src -m $MAIN -D analyzer-optimize"
 OUT=pbuftest
 
 if [ -z "$1" ]; then
-	echo -e "Please select a target:\n- js\n- hl\n- cpp\n- cs\n- java\n- python"
+	echo -e "Please select a target:\n- js\n- hl\n- cpp\n- cs\n- java\n- python\n- lua"
 	read -p 'Target? ' intarget
 else
 	intarget=$1

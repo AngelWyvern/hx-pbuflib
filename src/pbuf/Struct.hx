@@ -1,16 +1,17 @@
-package pbuf.macro;
+package pbuf;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 
 using haxe.macro.ExprTools;
+using StringTools;
 
 @:dce // Safely remove this class from the final output
-class StructBuilder
+class Struct
 {
 	/**
-	 * Generates an abstract structure that can be used in place of `Buffer`s.
+	 * Makes an abstract structure that can be used in place of `Buffer`s.
 	 * 
 	 * The fields within a structure are user-defined, and can only be of types compatible with the
 	 * `pbuf.io.Buffer` class (i.e. `UInt32BE`, `L16LEString`, etc).
@@ -23,18 +24,18 @@ class StructBuilder
 	 * @param inferBE if true, assumes big-endian when endianness is unspecified, otherwise little-endian is assumed
 	 * @return a generated structure with embedded functionality to handle all the underlying buffer code
 	 */
-	public static macro function gen(inferBE:Bool = false):Array<Field>
+	public static macro function make(inferBE:Bool = false):Array<Field>
 	{
-		final absImpl:ClassType = Context.getLocalClass().get();
-		var absInfo:AbstractType;
-		switch (absImpl.kind)
+		final impl:ClassType = Context.getLocalClass().get();
+		var info:AbstractType;
+		switch (impl.kind)
 		{
 			case KAbstractImpl(ref):
-				absInfo = ref.get();
+				info = ref.get();
 			case _:
 				Context.fatalError('Structs can only be generated on abstract types with an underlying Buffer type.', Context.currentPos());
 		}
-		switch (absInfo.type)
+		switch (info.type)
 		{
 			case TAbstract(t, _):
 				var underType:AbstractType = t.get();
@@ -43,8 +44,8 @@ class StructBuilder
 			case _:
 				Context.fatalError('Structs can only be generated on abstract types with an underlying Buffer type.', Context.currentPos());
 		}
-		absImpl.meta.add(':dce', [], Context.currentPos()); // Remove abstract definitions if inlining is enabled
-		final absPath:ComplexType = TPath({ name:absInfo.name, pack:absInfo.pack });
+		impl.meta.add(':dce', [], Context.currentPos()); // Remove abstract definitions if inlining is enabled
+		final absPath:ComplexType = TPath({ name:info.name, pack:info.pack });
 
 		var userFields:Array<Field> = Context.getBuildFields();
 		var genFields:Array<Field> = [];
@@ -62,10 +63,11 @@ class StructBuilder
 					switch (t)
 					{
 						case TPath(p):
-							var inference:String = inferType(p.name, inferBE);
+							var format:String = formatTypePath(p);
+							var inference:String = inferType(format, inferBE);
 							if (inference == null)
 							{
-								Context.reportError('Incompatible variable declaration.', uf.pos);
+								Context.reportError('Incompatible variable type declaration: $format', uf.pos);
 								continue;
 							}
 							var size:UInt = inferSize(inference);
@@ -190,8 +192,19 @@ class StructBuilder
 		return genFields;
 	}
 
+	private static inline function formatTypePath(path:TypePath):String
+	{
+		var sbuf:String = path.name;
+		if (path.pack.length > 0)
+			sbuf = path.pack.join('.') + '.$sbuf';
+		if (path.sub != null)
+			sbuf += '.${path.sub}';
+		return sbuf;
+	}
+
 	private static inline function inferType(name:String, inferBE:Bool):Null<String>
 	{
+		if (name.startsWith('pbuf.Typedefs.')) name = name.substr(14);
 		var endianness:String = inferBE ? 'BE' : 'LE';
 		return switch (name)
 		{
@@ -215,9 +228,8 @@ class StructBuilder
 			case 'UInt16LE' | 'UInt16BE' | 'Int16LE' | 'Int16BE': 2;
 			case 'UInt32LE' | 'UInt32BE' | 'Int32LE' | 'Int32BE' | 'FloatLE' | 'FloatBE': 4;
 			case 'UInt64LE' | 'UInt64BE' | 'Int64LE' | 'Int64BE' | 'DoubleLE' | 'DoubleBE': 8;
-			case 'String' | 'L8String' | 'ZString': 256;
-			case 'L16LEString' | 'L16BEString': 65536;
-			case 'L32LEString' | 'L32BEString': 16777216;
+			case 'String' | 'L8String' | 'L16LEString' | 'L16BEString' | 'L32LEString' |
+					'L32BEString' | 'ZString': 256;
 			case _: 0;
 		}
 	}

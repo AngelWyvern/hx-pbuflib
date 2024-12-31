@@ -7,7 +7,7 @@ import pbuf.io.Buffer;
 
 class StructTest
 {
-	static function main()
+	static function main():Void
 	{
 		test1();
 		test2();
@@ -17,7 +17,7 @@ class StructTest
 		test4();
 	}
 
-	static function test1()
+	static function test1():Void
 	{
 		trace('  >> Struct Test 1 <<  ');
 		var x:MyStruct = new MyStruct(32168, "Good stuff");
@@ -28,7 +28,7 @@ class StructTest
 		trace('preview: ' + arrayFromBuf(x) + '\n');
 	}
 
-	static function test2()
+	static function test2():Void
 	{
 		trace('  >> Struct Test 2 <<  ');
 		var y:OtherStruct = new OtherStruct();
@@ -55,7 +55,7 @@ class StructTest
 	}
 
 	#if !lua // annoying
-	static function test3()
+	static function test3():Void
 	{
 		trace('  >> Struct Test 3 <<  ');
 		var z:MegaStruct = new MegaStruct();
@@ -110,7 +110,7 @@ class StructTest
 	}
 	#end
 
-	static function test4()
+	static function test4():Void
 	{
 		trace('  >> Struct from/to Bytes <<  ');
 		var a:Array<Int> = [0x60, 0x00, 0x49, 0x74, 0x20, 0x77, 0x6F, 0x72, 0x6B, 0x73, 0x21, 0x00];
@@ -151,14 +151,14 @@ class StructTest
 	}
 }
 
-@:build(pbuf.macro.StructBuilder.gen(true))
+@:build(pbuf.Struct.make(true))
 abstract MyStruct(Buffer)
 {
 	var myInt:UInt16;
 	@size(16) var myString:ZString;
 }
 
-@:build(pbuf.macro.StructBuilder.gen())
+@:build(pbuf.Struct.make())
 abstract OtherStruct(Buffer)
 {
 	var smallData:Int16LE;
@@ -167,18 +167,18 @@ abstract OtherStruct(Buffer)
 	var bigFloat:DoubleLE;
 }
 
-@:build(pbuf.macro.StructBuilder.gen())
+@:build(pbuf.Struct.make())
 abstract MegaStruct(Buffer)
 {
 	var a:UInt8;
-	var b:UInt16;	
-	var c:UInt32;	
+	var b:UInt16;
+	var c:UInt32;
 	var d:UInt64;
 	var e:Int8;
-	var f:Int16;	
-	var g:Int32;	
+	var f:Int16;
+	var g:Int32;
 	var h:Int64;
 	var i:Float;
 	var j:Double;
-	@size(10) var k:ZString;	
+	@size(10) var k:ZString;
 }

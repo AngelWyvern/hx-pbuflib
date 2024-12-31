@@ -122,14 +122,14 @@ abstract Buffer(BufferImpl) from BufferImpl
 
 	/** Alias for array access (getter) */
 	@:arrayAccess
-	private inline function readByte(pos:Int):Int
+	private inline function get(pos:Int):Int
 	{
 		return this.readUInt8(pos);
 	}
 
 	/** Alias for array access (setter) */
 	@:arrayAccess
-	private inline function writeByte(pos:Int, value:Int):Int
+	private inline function set(pos:Int, value:Int):Int
 	{
 		this.writeUInt8(value, pos);
 		return value;
@@ -139,16 +139,12 @@ abstract Buffer(BufferImpl) from BufferImpl
 /** Implementation class for `Buffer` */
 private class BufferImpl
 {
-	/**
-	 * Int64 value of the mathematical equation `2^32 - 1`.
-	 */
+	/** Int64 value of the mathematical equation `2^32 - 1`. */
 	@:noCompletion private static var M1:Int64 = Int64.fromFloat(4294967295);
 
 	private var _buf:Bytes = null;
 
-	/**
-	 * The length (in terms of byte count) of this buffer.
-	 */
+	/** The length (in terms of byte count) of this buffer. */
 	public var byteLength(get, never):Int;
 
 	/**
@@ -244,7 +240,7 @@ private class BufferImpl
 
 	/** Reads an 8-bit `UInt` value stored in the buffer. */
 	public inline function readUInt8(?pos:Int = null):UInt8 { if (pos != null) curPos = pos; return _buf.get(curPos++); }
-	
+
 	/** Reads a 16-bit `UInt` value in Little-Endian stored in the buffer. */
 	public inline function readUInt16LE(?pos:Int = null):UInt16 { return readUInt8(pos) | (readUInt8() << 8); }
 	/** Reads a 16-bit `UInt` value in Big-Endian stored in the buffer. */
@@ -282,7 +278,7 @@ private class BufferImpl
 	public inline function readFloatLE(?pos:Int = null):Float { return FPHelper.i32ToFloat(readInt32LE(pos)); }
 	/** Reads a single-precision `Float` value in Big-Endian stored in the buffer. */
 	public inline function readFloatBE(?pos:Int = null):Float { return FPHelper.i32ToFloat(readInt32BE(pos)); }
-	
+
 	/** Reads a double-precision `Float` value in Little-Endian stored in the buffer. */
 	public inline function readDoubleLE(?pos:Int = null):Double { final low:Int = readInt32LE(pos); return FPHelper.i64ToDouble(low, readInt32LE()); }
 	/** Reads a double-precision `Float` value in Big-Endian stored in the buffer. */
@@ -291,17 +287,17 @@ private class BufferImpl
 	/** Reads a `String` value stored in the buffer. */
 	public inline function readString(length:Int, ?encoding:Encoding = UTF8, ?pos:Int = null):String { return _buf.getString(RWPosHelper(pos, length), length, encoding); }
 	/** Reads a `String` value with a prepended `UInt8` length stored in the buffer. */
-	public inline function readL8String(?encoding:Encoding = UTF8, ?pos:Int = null):String { final length:Int = readUInt8(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
+	public inline function readL8String(?encoding:Encoding = UTF8, ?pos:Int = null):L8String { final length:Int = readUInt8(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
 	/** Reads a `String` value with a prepended `UInt16LE` length stored in the buffer. */
-	public inline function readL16LEString(?encoding:Encoding = UTF8, ?pos:Int = null):String { final length:Int = readUInt16LE(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
+	public inline function readL16LEString(?encoding:Encoding = UTF8, ?pos:Int = null):L16String { final length:Int = readUInt16LE(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
 	/** Reads a `String` value with a prepended `UInt16BE` length stored in the buffer. */
-	public inline function readL16BEString(?encoding:Encoding = UTF8, ?pos:Int = null):String { final length:Int = readUInt16BE(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
+	public inline function readL16BEString(?encoding:Encoding = UTF8, ?pos:Int = null):L16String { final length:Int = readUInt16BE(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
 	/** Reads a `String` value with a prepended `UInt32LE` length stored in the buffer. */
-	public inline function readL32LEString(?encoding:Encoding = UTF8, ?pos:Int = null):String { final length:UInt = readUInt32LE(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
+	public inline function readL32LEString(?encoding:Encoding = UTF8, ?pos:Int = null):L32String { final length:UInt = readUInt32LE(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
 	/** Reads a `String` value with a prepended `UInt32BE` length stored in the buffer. */
-	public inline function readL32BEString(?encoding:Encoding = UTF8, ?pos:Int = null):String { final length:UInt = readUInt32BE(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
+	public inline function readL32BEString(?encoding:Encoding = UTF8, ?pos:Int = null):L32String { final length:UInt = readUInt32BE(pos); return _buf.getString(RWPosHelper(null, length), length, encoding); }
 	/** Reads a null-terminated `String` value stored in the buffer. */
-	public inline function readZString(?encoding:Encoding = UTF8, ?pos:Int = null):String { if (pos == null) pos = curPos; var end:Int = pos; while (_buf.get(end) != 0) ++end; final str:String = _buf.getString(pos, end - pos, encoding); curPos = end + 1; return str; }
+	public inline function readZString(?encoding:Encoding = UTF8, ?pos:Int = null):ZString { if (pos == null) pos = curPos; var end:Int = pos; while (_buf.get(end) != 0) ++end; final str:String = _buf.getString(pos, end - pos, encoding); curPos = end + 1; return str; }
 
 	/** Writes a `Bool` value to the buffer. */
 	public inline function writeBool(value:Bool, ?pos:Int = null):Buffer { writeUInt8(value ? 1 : 0, pos); return this; }
@@ -355,21 +351,19 @@ private class BufferImpl
 	/** Writes a `String` value to the buffer. */
 	public inline function writeString(value:String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); _buf.blit(RWPosHelper(pos, b.length), b, 0, b.length); return this; }
 	/** Writes a `String` value to the buffer with its length prepended as a `UInt8`. */
-	public inline function writeL8String(value:String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt8(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
+	public inline function writeL8String(value:L8String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt8(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
 	/** Writes a `String` value to the buffer with its length prepended as a `UInt16LE`. */
-	public inline function writeL16LEString(value:String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt16LE(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
+	public inline function writeL16LEString(value:L16String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt16LE(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
 	/** Writes a `String` value to the buffer with its length prepended as a `UInt16BE`. */
-	public inline function writeL16BEString(value:String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt16BE(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
+	public inline function writeL16BEString(value:L16String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt16BE(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
 	/** Writes a `String` value to the buffer with its length prepended as a `UInt32LE`. */
-	public inline function writeL32LEString(value:String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt32LE(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
+	public inline function writeL32LEString(value:L32String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt32LE(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
 	/** Writes a `String` value to the buffer with its length prepended as a `UInt32BE`. */
-	public inline function writeL32BEString(value:String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt32BE(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
+	public inline function writeL32BEString(value:L32String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); writeUInt32BE(b.length, pos); _buf.blit(RWPosHelper(null, b.length), b, 0, b.length); return this; }
 	/** Writes a null-terminated `String` value to the buffer. */
-	public inline function writeZString(value:String, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); _buf.blit(RWPosHelper(pos, b.length), b, 0, b.length); writeUInt8(0); return this; }
+	public inline function writeZString(value:ZString, ?encoding:Encoding = UTF8, ?pos:Int = null):Buffer { final b:Bytes = Bytes.ofString(value, encoding); _buf.blit(RWPosHelper(pos, b.length), b, 0, b.length); writeUInt8(0); return this; }
 
-	/**
-	 * Properly handles the position of the read/write head variable `curPos`.
-	 */
+	/** Properly handles the position of the read/write head variable `curPos`. */
 	@:noCompletion private inline function RWPosHelper(?pos:Int = null, length:Int):Int
 	{
 		if (pos != null)

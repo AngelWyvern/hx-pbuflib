@@ -24,6 +24,7 @@ class Test
 		testFloat();
 		testDouble();
 		testString();
+		testBytes();
 		testCasts();
 	}
 
@@ -46,10 +47,10 @@ class Test
 		trace('  >> UInt8 Test <<  ');
 
 		var u1:UInt, u2:UInt, u3:UInt, u4:UInt;
-		u1 = Math.round(Math.random() * 0xFF);
-		u2 = Math.round(Math.random() * 0xFF);
-		u3 = Math.round(Math.random() * 0xFF);
-		u4 = Math.round(Math.random() * 0xFF);
+		u1 = Math.floor(Math.random() * 0x100);
+		u2 = Math.floor(Math.random() * 0x100);
+		u3 = Math.floor(Math.random() * 0x100);
+		u4 = Math.floor(Math.random() * 0x100);
 
 		trace('Writing random UInt8s: $u1, $u2, $u3, $u4');
 		buffer[0] = u1;
@@ -287,29 +288,80 @@ class Test
 		cleanup();
 	}
 
+	static function testBytes():Void
+	{
+		trace('  >> Bytes Test <<  ');
+
+		trace('Filling array with random UInt8s');
+		var array:Array<Int> = [];
+		for (i in 0...buffer.byteLength)
+			array.push(Math.floor(Math.random() * 0x100));
+
+		trace('Writing bytes to buffer: $array');
+		buffer.writeBytes(array);
+
+		trace('Reading bytes in buffer: ${buffer.readBytes(null, 0)}');
+
+		trace('Testing offsets...');
+		trace('Reading bytes in buffer pos 4 len 8: ${buffer.readBytes(8, 4)}');
+		trace('Reading bytes in buffer len -2: ${buffer.readBytes(-2)}');
+
+		trace('Raw buffer data: ${arrayFromBuf()}\n');
+		cleanup();
+	}
+
 	static function testCasts():Void
 	{
 		trace('  >> Casts Test <<  ');
 
+		trace('# op: cast pbuf.io.Buffer->haxe.io.Bytes');
+
 		trace('Filling buffer with random UInt8s');
 		for (i in 0...buffer.byteLength)
-			buffer[i] = Math.round(Math.random() * 0xFF);
+			buffer[i] = Math.floor(Math.random() * 0x100);
 
-		trace('Casting buffer to bytes');
+		trace('Casting buffer to Bytes instance');
 		var bytes:Bytes = buffer;
 
 		trace('Raw bytes data: ${arrayFromBytes(bytes)}');
 		trace('Raw buffer data: ${arrayFromBuf()}');
 
-		trace('Filling new bytes with random UInt8s');
+		trace('# op: cast haxe.io.Bytes->pbuf.io.Buffer');
+
+		trace('Filling new Bytes instance with random UInt8s');
 		bytes = Bytes.alloc(buffer.byteLength);
 		for (i in 0...bytes.length)
-			bytes.set(i, Math.round(Math.random() * 0xFF));
+			bytes.set(i, Math.floor(Math.random() * 0x100));
 
-		trace('Casting bytes to buffer');
+		trace('Casting Bytes instance to buffer');
 		buffer = bytes;
 
 		trace('Raw bytes data: ${arrayFromBytes(bytes)}');
+		trace('Raw buffer data: ${arrayFromBuf()}');
+
+		trace('# op: cast pbuf.io.Buffer->Array<Int>');
+
+		trace('Filling buffer with random UInt8s');
+		for (i in 0...buffer.byteLength)
+			buffer[i] = Math.floor(Math.random() * 0x100);
+
+		trace('Casting buffer to Array instance');
+		var array:Array<Int> = buffer;
+
+		trace('Raw array data: $array');
+		trace('Raw buffer data: ${arrayFromBuf()}');
+
+		trace('# op: cast Array<Int>->pbuf.io.Buffer');
+
+		trace('Filling new Array instance with random UInt8s');
+		array = [];
+		for (i in 0...buffer.byteLength)
+			array[i] = Math.floor(Math.random() * 0x100);
+
+		trace('Casting Array instance to buffer');
+		buffer = array;
+
+		trace('Raw array data: $array');
 		trace('Raw buffer data: ${arrayFromBuf()}\n');
 
 		cleanup();

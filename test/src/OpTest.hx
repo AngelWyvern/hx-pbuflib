@@ -42,7 +42,7 @@ class OpTest
 		trace('clone raw: ${arrayFromBuf(clone)}');
 
 		for (i in 0...Std.int(clone.byteLength / 4))
-			clone[i] = Math.round(Math.random() * 0xFF);
+			clone[i] = Math.floor(Math.random() * 0x100);
 		trace('modified first quarter bytes of clone data with random values');
 
 		trace('buffer raw: ${arrayFromBuf(buffer)}');
@@ -68,7 +68,7 @@ class OpTest
 		var buffer:Buffer = getRandBuf();
 		trace('buffer raw: ${arrayFromBuf(buffer)}');
 
-		var num:Int = Math.round(Math.random() * 0xFF);
+		var num:Int = Math.floor(Math.random() * 0x100);
 		buffer.fill(num, Std.int(buffer.byteLength / 2), 0);
 		trace('filled half of the buffer with value: $num');
 
@@ -79,7 +79,7 @@ class OpTest
 	{
 		var buf:Buffer = Buffer.alloc(16);
 		for (i in 0...buf.byteLength)
-			buf[i] = Math.round(Math.random() * 0xFF);
+			buf[i] = Math.floor(Math.random() * 0x100);
 		return buf;
 	}
 

@@ -31,10 +31,10 @@ class StructTest
 		trace('  >> Struct Test 2 <<  ');
 		var y:OtherStruct = new OtherStruct();
 
-		var a:Int = Math.round(Math.random() * 0xFFFF - 0x8000);
-		var b:Int64 = Int64.make(Math.round(Math.random() * 0xFFFFFF - 0x800000), Math.round(Math.random() * 0xFFFFFF - 0x800000));
-		var c:Float = limitPrecision(Math.random() * 0xFFFFFF - 0x800000, 4);
-		var d:Float = Math.random() * 0xFFFFFF - 0x800000;
+		var a:Int = Math.floor(Math.random() * 0x10000 - 0x8000);
+		var b:Int64 = Int64.make(Math.floor(Math.random() * 0x1000000 - 0x800000), Math.floor(Math.random() * 0x1000000 - 0x800000));
+		var c:Float = limitPrecision(Math.random() * 0x1000000 - 0x800000, 4);
+		var d:Float = Math.random() * 0x1000000 - 0x800000;
 
 		trace('writing smallData: ' + a);
 		y.smallData = a;

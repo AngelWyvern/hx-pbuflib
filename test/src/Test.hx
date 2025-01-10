@@ -69,10 +69,10 @@ class Test
 		trace('  >> UInt16 Test <<  ');
 
 		var u1:UInt, u2:UInt, u3:UInt, u4:UInt;
-		u1 = Math.round(Math.random() * 0xFFFF);
-		u2 = Math.round(Math.random() * 0xFFFF);
-		u3 = Math.round(Math.random() * 0xFFFF);
-		u4 = Math.round(Math.random() * 0xFFFF);
+		u1 = Math.floor(Math.random() * 0x10000);
+		u2 = Math.floor(Math.random() * 0x10000);
+		u3 = Math.floor(Math.random() * 0x10000);
+		u4 = Math.floor(Math.random() * 0x10000);
 
 		trace('Writing random UInt16s: $u1 (LE), $u2 (LE), $u3 (BE), $u4 (BE)');
 		buffer.writeUInt16LE(u1)
@@ -91,10 +91,10 @@ class Test
 		trace('  >> UInt32 Test <<  ');
 
 		var u1:UInt, u2:UInt, u3:UInt, u4:UInt;
-		u1 = Math.round(Math.random() * 0xFFFFFF);
-		u2 = Math.round(Math.random() * 0xFFFFFF);
-		u3 = Math.round(Math.random() * 0xFFFFFF);
-		u4 = Math.round(Math.random() * 0xFFFFFF);
+		u1 = Math.floor(Math.random() * 0x1000000);
+		u2 = Math.floor(Math.random() * 0x1000000);
+		u3 = Math.floor(Math.random() * 0x1000000);
+		u4 = Math.floor(Math.random() * 0x1000000);
 
 		trace('Writing random UInt32s: $u1 (LE), $u2 (LE), $u3 (BE), $u4 (BE)');
 		buffer.writeUInt32LE(u1)
@@ -113,8 +113,8 @@ class Test
 		trace('  >> UInt64 Test <<  ');
 
 		var u1:Int64, u2:Int64;
-		u1 = Int64.make(Math.round(Math.random() * 0xFFFFFF), Math.round(Math.random() * 0xFFFFFF));
-		u2 = Int64.make(Math.round(Math.random() * 0xFFFFFF), Math.round(Math.random() * 0xFFFFFF));
+		u1 = Int64.make(Math.floor(Math.random() * 0x1000000), Math.floor(Math.random() * 0x1000000));
+		u2 = Int64.make(Math.floor(Math.random() * 0x1000000), Math.floor(Math.random() * 0x1000000));
 
 		trace('Writing random UInt64s: $u1 (LE), $u2 (BE)');
 		buffer.writeUInt64LE(u1)
@@ -131,10 +131,10 @@ class Test
 		trace('  >> Int8 Test <<  ');
 
 		var i1:Int, i2:Int, i3:Int, i4:Int;
-		i1 = Math.round(Math.random() * 0xFF - 0x80);
-		i2 = Math.round(Math.random() * 0xFF - 0x80);
-		i3 = Math.round(Math.random() * 0xFF - 0x80);
-		i4 = Math.round(Math.random() * 0xFF - 0x80);
+		i1 = Math.floor(Math.random() * 0x100 - 0x80);
+		i2 = Math.floor(Math.random() * 0x100 - 0x80);
+		i3 = Math.floor(Math.random() * 0x100 - 0x80);
+		i4 = Math.floor(Math.random() * 0x100 - 0x80);
 
 		trace('Writing random Int8s: $i1, $i2, $i3, $i4');
 		buffer.writeInt8(i1)
@@ -153,10 +153,10 @@ class Test
 		trace('  >> Int16 Test <<  ');
 
 		var i1:Int, i2:Int, i3:Int, i4:Int;
-		i1 = Math.round(Math.random() * 0xFFFF - 0x8000);
-		i2 = Math.round(Math.random() * 0xFFFF - 0x8000);
-		i3 = Math.round(Math.random() * 0xFFFF - 0x8000);
-		i4 = Math.round(Math.random() * 0xFFFF - 0x8000);
+		i1 = Math.floor(Math.random() * 0x10000 - 0x8000);
+		i2 = Math.floor(Math.random() * 0x10000 - 0x8000);
+		i3 = Math.floor(Math.random() * 0x10000 - 0x8000);
+		i4 = Math.floor(Math.random() * 0x10000 - 0x8000);
 
 		trace('Writing random Int16s: $i1 (LE), $i2 (LE), $i3 (BE), $i4 (BE)');
 		buffer.writeInt16LE(i1)
@@ -175,10 +175,10 @@ class Test
 		trace('  >> Int32 Test <<  ');
 
 		var i1:Int, i2:Int, i3:Int, i4:Int;
-		i1 = Math.round(Math.random() * 0xFFFFFF - 0x800000);
-		i2 = Math.round(Math.random() * 0xFFFFFF - 0x800000);
-		i3 = Math.round(Math.random() * 0xFFFFFF - 0x800000);
-		i4 = Math.round(Math.random() * 0xFFFFFF - 0x800000);
+		i1 = Math.floor(Math.random() * 0x1000000 - 0x800000);
+		i2 = Math.floor(Math.random() * 0x1000000 - 0x800000);
+		i3 = Math.floor(Math.random() * 0x1000000 - 0x800000);
+		i4 = Math.floor(Math.random() * 0x1000000 - 0x800000);
 
 		trace('Writing random Int32s: $i1 (LE), $i2 (LE), $i3 (BE), $i4 (BE)');
 		buffer.writeInt32LE(i1)
@@ -197,8 +197,8 @@ class Test
 		trace('  >> Int64 Test <<  ');
 
 		var i1:Int64, i2:Int64;
-		i1 = Int64.make(Math.round(Math.random() * 0xFFFFFF - 0x800000), Math.round(Math.random() * 0xFFFFFF - 0x800000));
-		i2 = Int64.make(Math.round(Math.random() * 0xFFFFFF - 0x800000), Math.round(Math.random() * 0xFFFFFF - 0x800000));
+		i1 = Int64.make(Math.floor(Math.random() * 0x1000000 - 0x800000), Math.floor(Math.random() * 0x1000000 - 0x800000));
+		i2 = Int64.make(Math.floor(Math.random() * 0x1000000 - 0x800000), Math.floor(Math.random() * 0x1000000 - 0x800000));
 
 		trace('Writing random Int64s: $i1 (LE), $i2 (BE)');
 		buffer.writeInt64LE(i1)
@@ -215,10 +215,10 @@ class Test
 		trace('  >> Float Test <<  ');
 
 		var f1:Float, f2:Float, f3:Float, f4:Float;
-		f1 = limitPrecision(Math.random() * 0xFFFFFF - 0x800000, 4); // I'm too lazy to figure out the min and max float ranges
-		f2 = limitPrecision(Math.random() * 0xFFFFFF - 0x800000, 4);
-		f3 = limitPrecision(Math.random() * 0xFFFFFF - 0x800000, 4);
-		f4 = limitPrecision(Math.random() * 0xFFFFFF - 0x800000, 4);
+		f1 = limitPrecision(Math.random() * 0x1000000 - 0x800000, 4); // I'm too lazy to figure out the min and max float ranges
+		f2 = limitPrecision(Math.random() * 0x1000000 - 0x800000, 4);
+		f3 = limitPrecision(Math.random() * 0x1000000 - 0x800000, 4);
+		f4 = limitPrecision(Math.random() * 0x1000000 - 0x800000, 4);
 
 		trace('Writing random Floats: $f1 (LE), $f2 (LE), $f3 (BE), $f4 (BE)');
 		buffer.writeFloatLE(f1)
@@ -237,8 +237,8 @@ class Test
 		trace('  >> Double Test <<  ');
 
 		var f1:Float, f2:Float;
-		f1 = Math.random() * 0xFFFFFF - 0x800000; // I'm too lazy to figure out the min and max float ranges
-		f2 = Math.random() * 0xFFFFFF - 0x800000;
+		f1 = Math.random() * 0x1000000 - 0x800000; // I'm too lazy to figure out the min and max float ranges
+		f2 = Math.random() * 0x1000000 - 0x800000;
 
 		trace('Writing random Doubles: $f1 (LE), $f2 (BE)');
 		buffer.writeDoubleLE(f1)

@@ -45,19 +45,33 @@ class Struct
 				Context.fatalError('Structs can only be generated on abstract types with an underlying Buffer type.', Context.currentPos());
 		}
 		impl.meta.add(':dce', [], Context.currentPos()); // Remove abstract definitions if inlining is enabled
-		final absPath:ComplexType = TPath({ name:info.name, pack:info.pack });
+		final absPath:ComplexType = getAbstractTPath(info);
+
+		final superFunc:String = '_super';
 
 		var userFields:Array<Field> = Context.getBuildFields();
-		var genFields:Array<Field> = [];
+		var genFields:Array<Field> =
+		[
+			{
+				name:superFunc,
+				access:[ APrivate, AInline ],
+				meta:[{ name:':noCompletion', pos:Context.currentPos() }],
+				kind:FFun({ args:[], expr:macro return this }),
+				pos:Context.currentPos()
+			}
+		];
 
 		var allocSize:UInt = 0;
 
 		var initArgs:Array<FunctionArg> = [];
 		var initExprs:Array<Expr> = [];
 
-		for (uf in userFields)
+		function parseField(field:Field, layers:Array<String>, ?outFields:Array<Field>)
 		{
-			switch (uf.kind)
+			if (outFields == null)
+				outFields = genFields;
+
+			switch (field.kind)
 			{
 				case FVar(t, e):
 					switch (t)
@@ -67,98 +81,169 @@ class Struct
 							var inference:String = inferType(format, inferBE);
 							if (inference == null)
 							{
-								Context.reportError('Incompatible variable type declaration: $format', uf.pos);
-								continue;
+								Context.reportError('Incompatible variable type declaration: $format', field.pos);
+								return;
 							}
+
 							var size:UInt = inferSize(inference);
+							var builtin:Bool = inference == 'Bool' || inference == 'String';
+							var inferred:ComplexType = TPath(builtin ? { pack:[], name:inference } : { pack:['pbuf'], name:'Typedefs', sub:inference }); // Don't fix built-in types
 
-							var pathname:String = inference, pack:Array<String> = [], sub:Null<String> = null;
-							if (inference != 'Bool' && inference != 'String') // Don't fix built-in types
-							{
-								pathname = 'Typedefs';
-								pack = ['pbuf'];
-								sub = inference;
-							}
-
-							var inferred:ComplexType = TPath({ name:pathname, pack:pack, sub:sub });
 							var readFunc:String = 'read$inference';
 							var writeFunc:String = 'write$inference';
 							var getter:Function =
 							{
 								args:[],
-								expr:macro return this.$readFunc($v{allocSize}),
+								expr:macro return $i{superFunc}().$readFunc($v{allocSize}),
 								ret:inferred
 							};
 							var setter:Function =
 							{
 								args:[{ name:'newValue', type:inferred }],
-								expr:macro { this.$writeFunc($i{'newValue'}, $v{allocSize}); return $i{'newValue'}; },
+								expr:macro { $i{superFunc}().$writeFunc($i{'newValue'}, $v{allocSize}); return $i{'newValue'}; },
 								ret:inferred
 							};
 
 							if (isStringType(inference))
 							{
-								for (m in uf.meta)
+								for (m in field.meta)
 									if (m.name == 'size')
 										size = m.params[0].getValue(); // use user-specified length instead of inferred
 								if (inference == 'String')
-									getter.expr = macro return this.$readFunc($v{size}, null, $v{allocSize});
+									getter.expr = macro return $i{superFunc}().$readFunc($v{size}, null, $v{allocSize});
 								else
-									getter.expr = macro return this.$readFunc(null, $v{allocSize});
-								setter.expr = macro { this.$writeFunc($i{'newValue'}, null, $v{allocSize}); return $i{'newValue'}; };
+									getter.expr = macro return $i{superFunc}().$readFunc(null, $v{allocSize});
+								setter.expr = macro { $i{superFunc}().$writeFunc($i{'newValue'}, null, $v{allocSize}); return $i{'newValue'}; };
 							}
 
-							final fieldName:String = uf.name;
-							genFields.push(
-							{ // Property field
-								name:fieldName,
-								doc:uf.doc,
+							outFields.push(
+							{	// Property field
+								name:field.name,
+								doc:field.doc,
 								access:[ APublic ],
-								meta:uf.meta,
-								kind: FProp('get', 'set', inferred),
-								pos:uf.pos
+								meta:field.meta,
+								kind:FProp('get', 'set', inferred),
+								pos:field.pos
 							});
-							genFields.push(
-							{ // Getter field
-								name:'get_$fieldName',
+							outFields.push(
+							{	// Getter field
+								name:'get_${field.name}',
 								access:[ APrivate, AInline ],
 								meta:[{ name:':noCompletion', pos:Context.currentPos() }],
-								kind: FFun(getter),
+								kind:FFun(getter),
 								pos:Context.currentPos()
 							});
-							genFields.push(
-							{ // Setter field
-								name:'set_$fieldName',
+							outFields.push(
+							{	// Setter field
+								name:'set_${field.name}',
 								access:[ APrivate, AInline ],
 								meta:[{ name:':noCompletion', pos:Context.currentPos() }],
-								kind: FFun(setter),
+								kind:FFun(setter),
 								pos:Context.currentPos()
 							});
 
 							allocSize += size;
 
-							initArgs.push({ name:fieldName, type:inferred, value:macro null, opt:true });
-							initExprs.push(macro if ($i{fieldName} != null) $i{'set_$fieldName'}($i{fieldName}));
+							if (layers.length <= 0)
+							{
+								initArgs.push({ name:field.name, type:inferred, value:macro null, opt:true });
+								initExprs.push(macro if ($i{field.name} != null) $i{'set_${field.name}'}($i{field.name}));
+							}
+							else
+							{
+								final cmbName:String = '${layers.join('__')}__${field.name}', fieldPath:Array<String> = layers.copy();
+								fieldPath.push(field.name);
+								initArgs.push({ name:cmbName, type:inferred, value:macro null, opt:true });
+								initExprs.push(macro if ($i{cmbName} != null) $p{fieldPath} = $i{cmbName});
+							}
+						case TAnonymous(subFields):
+							layers.push(field.name);
+
+							var cf:Array<Field> =
+							[
+								{
+									name:'new',
+									access:[ APrivate, AInline ],
+									kind:FFun(
+									{
+										args:[{ name:'_this', type:absPath }],
+										expr:macro this = $i{'_this'}
+									}),
+									pos:Context.currentPos()
+								},
+								{
+									name:superFunc,
+									access:[ APrivate, AInline ],
+									meta:[{ name:':noCompletion', pos:Context.currentPos() }],
+									kind:FFun({ args:[], expr:macro @:privateAccess return this.$superFunc() }),
+									pos:Context.currentPos()
+								}
+							];
+
+							for (af in subFields)
+								parseField(af, layers.copy(), cf);
+
+							var cdef:TypeDefinition =
+							{
+								name:'${info.name}__subfield__${layers.join('__')}',
+								meta:
+								[
+									{ name:':noCompletion', pos:Context.currentPos() },
+									{ name:':dce', pos:Context.currentPos() } // Remove abstract definitions if inlining is enabled
+								],
+								kind:TDAbstract(absPath),
+								fields:cf,
+								pack:info.pack,
+								pos:Context.currentPos()
+							};
+							var cpath:TypePath = { name:cdef.name, pack:cdef.pack };
+
+							Context.defineType(cdef);
+
+							outFields.push(
+							{	// Property field
+								name:field.name,
+								doc:field.doc,
+								access:[ APublic ],
+								meta:field.meta,
+								kind:FProp('get', 'never', TPath(cpath)),
+								pos:field.pos
+							});
+							outFields.push(
+							{	// Getter field
+								name:'get_${field.name}',
+								access:[ APrivate, AInline ],
+								meta:[{ name:':noCompletion', pos:Context.currentPos() }],
+								kind:FFun(
+								{
+									args:[],
+									expr:macro @:privateAccess return new $cpath(this),
+									ret:TPath(cpath)
+								}),
+								pos:Context.currentPos()
+							});
 						case _:
-							Context.reportError('Incompatible variable declaration.', uf.pos);
-							continue;
+							Context.reportError('Incompatible variable declaration.', field.pos);
 					}
 				case _:
-					genFields.push(uf);
+					Context.reportError('Incompatible field declaration.', field.pos);
 			}
 		}
+
+		for (uf in userFields)
+			parseField(uf, []);
 
 		initExprs.unshift(macro this = pbuf.io.Buffer.alloc($v{allocSize}));
 
 		genFields.push(
-		{ // Constructor field
+		{	// Constructor field
 			name:'new',
 			access:[ APublic, AInline ],
 			kind:FFun({ args:initArgs, expr:macro $b{initExprs} }),
 			pos:Context.currentPos()
 		});
 		genFields.push(
-		{ // From Bytes field
+		{	// From Bytes field
 			name:'fromBytes',
 			access:[ APublic, AStatic, AInline ],
 			meta:[{ name:':from', pos:Context.currentPos() }],
@@ -166,7 +251,7 @@ class Struct
 			pos:Context.currentPos()
 		});
 		genFields.push(
-		{ // From Buffer field
+		{	// From Buffer field
 			name:'fromBuffer',
 			access:[ APublic, AStatic, AInline ],
 			meta:[{ name:':from', pos:Context.currentPos() }],
@@ -174,7 +259,7 @@ class Struct
 			pos:Context.currentPos()
 		});
 		genFields.push(
-		{ // To Buffer field
+		{	// To Buffer field
 			name:'toBuffer',
 			access:[ APublic, AInline ],
 			meta:[{ name:':to', pos:Context.currentPos() }],
@@ -182,7 +267,7 @@ class Struct
 			pos:Context.currentPos()
 		});
 		genFields.push(
-		{ // To Bytes field
+		{	// To Bytes field
 			name:'toBytes',
 			access:[ APublic, AInline ],
 			meta:[{ name:':to', pos:Context.currentPos() }],
@@ -190,6 +275,14 @@ class Struct
 			pos:Context.currentPos()
 		});
 		return genFields;
+	}
+
+	private static inline function getAbstractTPath(info:AbstractType):ComplexType
+	{
+		final current:String = info.module.split('.').pop();
+		if (current == info.name)
+			return TPath({ name:info.name, pack:info.pack });
+		return TPath({ name:current, pack:info.pack, sub:info.name });
 	}
 
 	private static inline function formatTypePath(path:TypePath):String
@@ -237,11 +330,11 @@ class Struct
 	private static inline function isStringType(type:String):Bool
 	{
 		return type == 'String'
-		    || type == 'LString8'
-		    || type == 'LString16LE'
-		    || type == 'LString16BE'
-		    || type == 'LString32LE'
-		    || type == 'LString32BE'
+		    || type == 'L8String'
+		    || type == 'L16StringLE'
+		    || type == 'L16StringBE'
+		    || type == 'L32StringLE'
+		    || type == 'L32StringBE'
 		    || type == 'ZString';
 	}
 }

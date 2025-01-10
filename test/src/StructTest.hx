@@ -11,9 +11,7 @@ class StructTest
 	{
 		test1();
 		test2();
-		#if !lua // annoying
 		test3();
-		#end
 		test4();
 	}
 
@@ -38,13 +36,13 @@ class StructTest
 		var c:Float = limitPrecision(Math.random() * 0xFFFFFF - 0x800000, 4);
 		var d:Float = Math.random() * 0xFFFFFF - 0x800000;
 
-		trace ('writing smallData: ' + a);
+		trace('writing smallData: ' + a);
 		y.smallData = a;
-		trace ('writing bigData: ' + b);
+		trace('writing bigData: ' + b);
 		y.bigData = b;
-		trace ('writing smallFloat: ' + c);
+		trace('writing smallFloat: ' + c);
 		y.smallFloat = c;
-		trace ('writing bigFloat: ' + d);
+		trace('writing bigFloat: ' + d);
 		y.bigFloat = d;
 
 		trace('reading smallData: ' + y.smallData);
@@ -54,61 +52,36 @@ class StructTest
 		trace('preview: ' + arrayFromBuf(y) + '\n');
 	}
 
-	#if !lua // annoying
 	static function test3():Void
 	{
 		trace('  >> Struct Test 3 <<  ');
-		var z:MegaStruct = new MegaStruct();
+		var z:LayeredStruct = new LayeredStruct();
 
-		var a:Int = Math.round(Math.random() * 0xFF);
-		var b:Int = Math.round(Math.random() * 0xFFFF);
-		var c:Int = Math.round(Math.random() * 0xFFFFFF);
-		var d:Int64 = Int64.make(Math.round(Math.random() * 0xFFFFFF), Math.round(Math.random() * 0xFFFFFF));
-		var e:Int = Math.round(Math.random() * 0xFF - 0x80);
-		var f:Int = Math.round(Math.random() * 0xFFFF - 0x8000);
-		var g:Int = Math.round(Math.random() * 0xFFFFFF - 0x800000);
-		var h:Int64 = Int64.make(Math.round(Math.random() * 0xFFFFFF - 0x800000), Math.round(Math.random() * 0xFFFFFF - 0x800000));
-		var i:Float = limitPrecision(Math.random() * 0xFFFFFF - 0x800000, 4);
-		var j:Float = Math.random() * 0xFFFFFF - 0x800000;
-		var k:String = "Very cool";
+		var a:Int = Math.floor(Math.random() * 0x100);
+		var b:Int = Math.floor(Math.random() * 0x10000 - 0x8000);
+		var c:Int = Math.floor(Math.random() * 0x10000 - 0x8000);
+		var d:Int = Math.floor(Math.random() * 0x10000 - 0x8000);
+		var e:Int = Math.floor(Math.random() * 0x10000 - 0x8000);
 
-		trace('writing a: ' + a);
-		z.a = a;
-		trace('writing b: ' + b);
-		z.b = b;
-		trace('writing c: ' + c);
-		z.c = c;
-		trace('writing d: ' + d);
-		z.d = d;
-		trace('writing e: ' + e);
-		z.e = e;
-		trace('writing f: ' + f);
-		z.f = f;
-		trace('writing g: ' + g);
-		z.g = g;
-		trace('writing h: ' + h);
-		z.h = h;
-		trace('writing i: ' + i);
-		z.i = i;
-		trace('writing j: ' + j);
-		z.j = j;
-		trace('writing k: ' + k);
-		z.k = k;
+		trace('writing id: ' + a);
+		z.id = a;
 
-		trace('reading a: ' + z.a);
-		trace('reading b: ' + z.b);
-		trace('reading c: ' + z.c);
-		trace('reading d: ' + z.d);
-		trace('reading e: ' + z.e);
-		trace('reading f: ' + z.f);
-		trace('reading g: ' + z.g);
-		trace('reading h: ' + z.h);
-		trace('reading i: ' + z.i);
-		trace('reading j: ' + z.j);
-		trace('reading k: ' + z.k);
+		trace('writing rect.x: ' + b);
+		z.rect.x = b;
+		trace('writing rect.y: ' + c);
+		z.rect.y = c;
+		trace('writing rect.size.w: ' + d);
+		z.rect.size.w = d;
+		trace('writing rect.size.h: ' + e);
+		z.rect.size.h = e;
+
+		trace('reading id: ' + z.id);
+		trace('reading rect.x: ' + z.rect.x);
+		trace('reading rect.y: ' + z.rect.y);
+		trace('reading rect.size.w: ' + z.rect.size.w);
+		trace('reading rect.size.h: ' + z.rect.size.h);
 		trace('preview: ' + arrayFromBuf(z) + '\n');
 	}
-	#end
 
 	static function test4():Void
 	{
@@ -168,17 +141,17 @@ abstract OtherStruct(Buffer)
 }
 
 @:build(pbuf.Struct.make())
-abstract MegaStruct(Buffer)
+abstract LayeredStruct(Buffer)
 {
-	var a:UInt8;
-	var b:UInt16;
-	var c:UInt32;
-	var d:UInt64;
-	var e:Int8;
-	var f:Int16;
-	var g:Int32;
-	var h:Int64;
-	var i:Float;
-	var j:Double;
-	@size(10) var k:ZString;
+	var id:UInt8;
+	var rect:
+	{
+		var x:Int16;
+		var y:Int16;
+		var size:
+		{
+			var w:Int16;
+			var h:Int16;
+		}
+	}
 }

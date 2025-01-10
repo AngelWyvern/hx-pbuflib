@@ -96,6 +96,59 @@ buffer.writeUInt16LE(32168, 0); // first var is always at pos 0
 buffer.writeZString("Hello struct", null, 2); // last var held 2 bytes, write at pos 2
 ```
 
+#### <p align="center">Subfields</p>
+
+Subfields allow you to cleanly organize your data structures in a more conventional style than just dumping all your variables in one place.
+
+A subfield can be created by utilizing anonymous structure types like so:
+
+```hx
+@:build(pbuf.Struct.make())
+abstract SpriteData(Buffer)
+{
+	var meta:
+	{
+		var id:UInt16;
+		@size(32) var name:L8String;
+	}
+	var data:
+	{
+		var pos:
+		{
+			var x:Float;
+			var y:Float;
+		}
+		var size:
+		{
+			var width:Int32;
+			var height:Int32;
+		}
+	}
+}
+```
+
+These values can then be accessed exactly how you'd imagine.
+
+```hx
+var struct:SpriteData = new SpriteData();
+struct.meta.id = 3;
+struct.data.pos.x = 8;
+struct.data.pos.y = 16;
+...
+```
+
+Do keep in mind that the data's position in the buffer is determined by the order in which the fields were defined. In the above example, this would mean that `struct.meta.id` would read/write data in position 0 (first value is always in position 0), `struct.meta.name` in position 2 (last value held 2 bytes), `struct.data.pos.x` in position 34 (last value held 32 bytes), and so on.
+
+In the end, the above code block is still equivalent to writing the following:
+
+```hx
+var buffer:Buffer = Buffer.alloc(50); // 2 bytes (UInt16) + 32 (specified by @size meta) + 4 * 4 (2 Floats and 2 Int32s) = 50
+buffer.writeUInt16LE(3, 0); // first var is always at pos 0
+buffer.writeFloatLE(8, 34); // preceding vars hold 2 + 32 bytes, write at pos 34
+buffer.writeFloatLE(16, 38); // last var held 4 bytes, write at pos 38
+...
+```
+
 ## <p align="center">Reference</p>
 
 ### <p align="center">Data Types</p>

@@ -1,2 +1,13 @@
+# macOS trash
+.DS_Store
+__MACOSX
+._*
+
+# Haxe language server dump files
+dump
+
+# Compiled test files
 test/out
+
+# Packaged haxelib file
 pbuflib.zip
